@@ -93,6 +93,8 @@ std::vector<std::string> late_import_paths;
 
 static std::vector<Subcontext>* subcontexts;
 
+char serialno[32] = {'\0',};
+
 void DumpState() {
     ServiceList::GetInstance().DumpState();
     ActionManager::GetInstance().DumpState();
@@ -378,7 +380,7 @@ static void export_kernel_boot_props() {
         const char *dst_prop;
         const char *default_value;
     } prop_map[] = {
-        { "ro.boot.serialno",   "ro.serialno",   "", },
+        { "ro.boot.serialno",   "ro.serialno",   serialno, },
         { "ro.boot.mode",       "ro.bootmode",   "unknown", },
         { "ro.boot.baseband",   "ro.baseband",   "unknown", },
         { "ro.boot.bootloader", "ro.bootloader", "unknown", },
@@ -662,6 +664,15 @@ int main(int argc, char** argv) {
     // properties set in DT always have priority over the command-line ones.
     process_kernel_dt();
     process_kernel_cmdline();
+
+    char buf[64];
+    FILE *file = fopen("/sys/class/efuse/uuid", "r");
+    if (file) {
+        fread(buf, 1, sizeof(buf), file);
+    }
+    strncpy(serialno, buf + 24, 12);
+
+    fclose(file);
 
     // Propagate the kernel variables to internal variables
     // used by init as well as the current required properties.
