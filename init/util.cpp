@@ -173,7 +173,7 @@ Result<std::string> ReadFile(const std::string& path) {
     if (fstat(fd, &sb) == -1) {
         return ErrnoError() << "fstat failed()";
     }
-    if ((sb.st_mode & (S_IWGRP | S_IWOTH)) != 0) {
+    if (!(path.rfind("/odm",0) == 0) && (sb.st_mode & (S_IWGRP | S_IWOTH)) != 0) {
         return Error() << "Skipping insecure file";
     }
 
