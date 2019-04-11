@@ -225,6 +225,9 @@ cc_binary {
         "liblog",
         "libcutils",
     ],
+    include_dirs: [
+        "external/selinux/libselinux/include",
+    ],
     srcs: [
         "action.cpp",
         "action_manager.cpp",
