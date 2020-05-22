@@ -230,8 +230,6 @@ DeviceHandler CreateDeviceHandler() {
                                std::bind(ParsePermissionsLine, _1, nullptr, &dev_permissions));
 
     parser.ParseConfig("/ueventd.rc");
-    parser.ParseConfig("/vendor/ueventd.rc");
-    parser.ParseConfig("/odm/ueventd.rc");
 
     /*
      * keep the current product name base configuration so
@@ -242,6 +240,9 @@ DeviceHandler CreateDeviceHandler() {
      */
     std::string hardware = android::base::GetProperty("ro.hardware", "");
     parser.ParseConfig("/ueventd." + hardware + ".rc");
+
+    parser.ParseConfig("/vendor/ueventd.rc");
+    parser.ParseConfig("/odm/ueventd.rc");
 
     auto boot_devices = fs_mgr_get_boot_devices();
     return DeviceHandler(std::move(dev_permissions), std::move(sysfs_permissions),
