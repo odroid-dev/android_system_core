@@ -64,6 +64,8 @@ using android::base::Timer;
 namespace android {
 namespace init {
 
+static std::thread* reboot_thread;
+
 // represents umount status during reboot / shutdown.
 enum UmountStat {
     /* umount succeeded. */
@@ -329,10 +331,20 @@ static UmountStat TryUmountAndFsck(bool runFsck, std::chrono::milliseconds timeo
     return stat;
 }
 
+static void makepanic_thread_main() {
+    std::this_thread::sleep_for(30s);
+    while (true) {
+        android::base::WriteStringToFile("c", "/proc/sysrq-trigger");
+        std::this_thread::sleep_for(1s);
+    }
+}
+
 void DoReboot(unsigned int cmd, const std::string& reason, const std::string& rebootTarget,
               bool runFsck) {
     Timer t;
     LOG(INFO) << "Reboot start, reason: " << reason << ", rebootTarget: " << rebootTarget;
+
+    reboot_thread = new std::thread(makepanic_thread_main);
 
     // Ensure last reboot reason is reduced to canonical
     // alias reported in bootloader or system boot reason.
