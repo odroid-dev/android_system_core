@@ -407,6 +407,21 @@ void DeviceHandler::HandleDeviceEvent(const Uevent& uevent) {
             int device_id = uevent.minor % 128 + 1;
             devpath = StringPrintf("/dev/bus/usb/%03d/%03d", bus_id, device_id);
         }
+    } else if (uevent.subsystem == "usbmisc") {
+        if (uevent.major == 180) {
+            devpath = "/dev/usb/";
+            std:: string node;
+            // uevent.minor is zero or positive here.
+            if (uevent.minor < 16) {
+                node = "lp" + std::to_string(uevent.minor);
+            } else if (95 < uevent.minor && uevent.minor < 112) {
+                node = "hiddev" + std::to_string(uevent.minor - 96);
+            } else
+                return;
+
+            devpath.append(node);
+        } else
+            return;
     } else if (StartsWith(uevent.subsystem, "usb")) {
         // ignore other USB events
         return;
