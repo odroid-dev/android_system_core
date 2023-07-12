@@ -62,7 +62,7 @@ static int mapSysfsString(const char* str,
 }
 
 static void initBatteryProperties(BatteryProperties* props) {
-    props->chargerAcOnline = false;
+    props->chargerAcOnline = true;
     props->chargerUsbOnline = false;
     props->chargerWirelessOnline = false;
     props->maxChargingCurrent = 0;
